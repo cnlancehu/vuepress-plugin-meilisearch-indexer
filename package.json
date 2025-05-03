@@ -1,0 +1,41 @@
+{
+  "name": "vuepress-plugin-meilisearch-indexer",
+  "version": "0.1.0",
+  "description": "VuePress plugin - Meilisearch Indexer",
+  "keywords": [
+    "vuepress-plugin",
+    "vuepress",
+    "plugin",
+    "search",
+    "meilisearch"
+  ],
+  "license": "MIT",
+  "author": "Lance <me@lance.fun>",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cnlancehu/vuepress-plugin-meilisearch-indexer"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "devDependencies": {
+    "cheerio": "^1.0.0",
+    "domhandler": "^5.0.3",
+    "meilisearch": "^0.50.0",
+    "typescript": "^5.8.3",
+    "vuepress": "catalog:vuepress"
+  },
+  "peerDependencies": {
+    "vuepress": "^2.0.0-rc.22"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
