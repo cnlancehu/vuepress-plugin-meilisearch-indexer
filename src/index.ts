@@ -127,8 +127,6 @@ async function deployToMeilisearch(
         }
 
         // Replace the key with the resolved API key
-        const resolvedConfig = { ...config, key: apiKey }
-
         if (!host || !index_uid) {
             console.error('Missing required Meilisearch configuration')
             return
@@ -138,7 +136,7 @@ async function deployToMeilisearch(
 
         const client = new MeiliSearch({
             host,
-            apiKey: key,
+            apiKey,
         })
 
         const index = client.index(index_uid)
