@@ -1,6 +1,6 @@
 {
   "name": "vuepress-plugin-meilisearch-indexer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "VuePress plugin - Meilisearch Indexer",
   "keywords": [
     "vuepress-plugin",
@@ -33,7 +33,6 @@
     "cheerio": "^1.0.0",
     "domhandler": "^5.0.3",
     "meilisearch": "^0.50.0",
-    "picocolors": "^1.1.1",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
