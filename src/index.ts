@@ -23,31 +23,96 @@ function following() {
 }
 
 export interface MeiliSearchDeployConfig {
-    // 部署触发器，deploy = true 表示环境变量 `DEPLOY` 为 true 时触发，everytime表示每次生成时都部署
+    /**
+     * Deploy trigger, determines when the deployment to Meilisearch should happen
+     * - 'deploy = true': Deploy only when the DEPLOY environment variable is set to 'true'
+     * - 'everytime': Deploy every time the index is generated
+     *
+     * 部署触发器，决定何时将索引部署到 Meilisearch
+     * - 'deploy = true': 仅当环境变量 DEPLOY 设置为 'true' 时触发部署
+     * - 'everytime': 每次生成索引时都进行部署
+     */
     trigger: DeployTrigger,
 
-    // Meilisearch 服务器地址
-    host: string
-    // Meilisearch API 密钥，如果留空则从环境变量MEILISEARCH_API_KEY中获取
-    key?: string | null
-    // 索引名称
-    index_uid: string
-    // 部署类型，full表示全量更新，incremental表示增量更新
+    /**
+     * Meilisearch server host URL
+     * 
+     * Meilisearch 服务器地址
+     */
+    host: string,
+
+    /**
+     * Meilisearch API key
+     * If not provided, will try to use the MEILISEARCH_API_KEY environment variable
+     * 
+     * Meilisearch API 密钥
+     * 如果未提供，将尝试使用 MEILISEARCH_API_KEY 环境变量
+     */
+    key?: string | null,
+
+    /**
+     * The unique identifier for the Meilisearch index
+     * 
+     * Meilisearch 索引的唯一标识符
+     */
+    index_uid: string,
+
+    /**
+     * Deployment type:
+     * - 'full': Deletes all existing documents before adding new ones (complete reindex)
+     * - 'incremental': Updates existing documents and adds new ones without removing unmatched documents
+     *
+     * 部署类型：
+     * - 'full': 删除所有现有文档后添加新文档（完全重建索引）
+     * - 'incremental': 更新现有文档并添加新文档，不删除未匹配的文档
+     */
     type: DeployType
 }
 
+/**
+ * Configuration options for the MeiliSearch indexer plugin.
+ * 
+ * MeiliSearch 索引器插件的配置选项。
+ */
 export interface MeiliSearchIndexerPluginOptions {
-    // 输出的JSON文件路径
-    // 不设置则不输出文件
+    /**
+     * Output path for the generated JSON index file.
+     * If not set, no file will be generated.
+     * 
+     * 输出的JSON文件路径。
+     * 不设置则不输出文件。
+     */
     indexOutputFile?: string
-    // 是否索引全文内容
+
+    /**
+     * Whether to index the full content of pages.
+     * 
+     * 是否索引页面的全文内容。
+     */
     indexContent?: boolean
-    // 页面过滤器，返回true表示页面需要被索引
+
+    /**
+     * Page filter function. Pages will be indexed only if this function returns true.
+     * Return true to include the page in the index.
+     * 
+     * 页面过滤器函数。返回true表示页面需要被索引。
+     */
     filter?: (page: Page) => boolean
-    // 站点基础URL，用于生成完整URL
+
+    /**
+     * Base URL of the site. Used to generate complete URLs for indexed pages.
+     * 
+     * 站点基础URL，用于为索引页面生成完整URL。
+     */
     baseUrl?: string
-    // Meilisearch部署配置
-    // 不设置则不进行部署
+
+    /**
+     * MeiliSearch deployment configuration.
+     * If not set, deployment will not occur.
+     * 
+     * Meilisearch部署配置。
+     * 不设置则不进行部署。
+     */
     deploy?: MeiliSearchDeployConfig
 }
 
