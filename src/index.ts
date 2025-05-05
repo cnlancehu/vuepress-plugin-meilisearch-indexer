@@ -16,7 +16,7 @@ export interface MeiliSearchDeployConfig {
     // Meilisearch 服务器地址
     host: string
     // Meilisearch API 密钥，如果留空则从环境变量MEILISEARCH_API_KEY中获取
-    key?: string
+    key?: string | null
     // 索引名称
     index_uid: string
     // 部署类型，full表示全量更新，incremental表示增量更新
@@ -103,7 +103,7 @@ export const generateMeiliSearchIndex = async (
     }
 
     // Deploy to Meilisearch if configured
-    if (deploy) {
+    if ((deploy.trigger === 'deploy = true' && process.env.DEPLOY === 'true') || deploy.trigger === 'everytime') {
         await deployToMeilisearch(documents, deploy)
     }
 }
@@ -119,7 +119,7 @@ async function deployToMeilisearch(
         const { host, key, index_uid, type } = config
 
         // Use environment variable as fallback if key is not provided
-        const apiKey = key || process.env.MEILISEARCH_API_KEY
+        const apiKey = key || process.env.MEILISEARCH_API_KEY;
 
         if (!apiKey) {
             console.error('Meilisearch API key not provided and MEILISEARCH_API_KEY environment variable not set')

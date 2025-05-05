@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@vuepress/monorepo':
-        specifier: git+https://github.com/vuepress/core.git
-        version: git+https://github.com/vuepress/core.git#523e202018ed0cb4bf8d0bbcf5879abc07bf1c41
       vuepress:
         specifier: ^2.0.0-rc.22
         version: 2.0.0-rc.22(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))
@@ -323,10 +320,6 @@ packages:
 
   '@vuepress/markdown@2.0.0-rc.22':
     resolution: {integrity: sha512-rpLoGZKf8XY7V+XIgaU/pTxLvymo7A/+j9pUX6kroYMguvE83AkfEZkFhJJ1yOhjVZWYW2v544NQfqhWkXqRqg==}
-
-  '@vuepress/monorepo@git+https://github.com/vuepress/core.git#523e202018ed0cb4bf8d0bbcf5879abc07bf1c41':
-    resolution: {commit: 523e202018ed0cb4bf8d0bbcf5879abc07bf1c41, repo: https://github.com/vuepress/core.git, type: git}
-    version: 2.0.0-rc.22
 
   '@vuepress/shared@2.0.0-rc.22':
     resolution: {integrity: sha512-JpAdqf2pJELxnnK2Mc3m6O+v4WGMSqBZkXAWQk3a3oxoKcX2ZEj8I7WDo3FpL6oTgrZbzQroVFzvTOionP1ylA==}
@@ -1110,8 +1103,6 @@ snapshots:
       mdurl: 2.0.0
     transitivePeerDependencies:
       - supports-color
-
-  '@vuepress/monorepo@git+https://github.com/vuepress/core.git#523e202018ed0cb4bf8d0bbcf5879abc07bf1c41': {}
 
   '@vuepress/shared@2.0.0-rc.22':
     dependencies:
