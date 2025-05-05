@@ -9,6 +9,19 @@ import path from 'path'
 export type DeployTrigger = 'deploy = true' | 'everytime'
 export type DeployType = 'full' | 'incremental'
 
+let isFirstLog = true;
+
+const FOLLOWING = '\u{1b}[38;2;255;92;178mMeiliIndexer\u{1b}[0m |';
+const FOLLOWING_BLANK = '             |';
+
+function following() {
+    if (isFirstLog) {
+        isFirstLog = false;
+        return FOLLOWING;
+    }
+    return FOLLOWING_BLANK;
+}
+
 export interface MeiliSearchDeployConfig {
     // 部署触发器，deploy = true 表示环境变量 `DEPLOY` 为 true 时触发，everytime表示每次生成时都部署
     trigger: DeployTrigger,
@@ -77,6 +90,18 @@ export const generateMeiliSearchIndex = async (
         deploy
     } = options
 
+    // Skip index generation if no output file and no deployment is configured
+    if (!indexOutputFile && !deploy) {
+        console.log(following(), '\u{1b}[90mskipped\u{1b}[0m')
+        return
+    }
+
+    // Skip if deploy is configured but won't be triggered
+    if (!indexOutputFile && deploy && deploy.trigger === 'deploy = true' && process.env.DEPLOY !== 'true') {
+        console.log(following(), '\u{1b}[90mskipped\u{1b}[0m')
+        return
+    }
+
     // Generate documents from pages
     const documents: MeiliSearchDocument[] = []
     app.pages.forEach((page) => {
@@ -96,14 +121,15 @@ export const generateMeiliSearchIndex = async (
                 JSON.stringify(documents, null, 2),
                 'utf-8'
             )
-            console.log(`Meilisearch index saved to ${indexOutputFile}`)
+            console.log(following(), `Index saved to ${indexOutputFile}`)
         } catch (err) {
-            console.error(`Failed to save Meilisearch index to file: ${err}`)
+            console.log(following(), `Failed to save index to file`)
+            console.error(following(), err)
         }
     }
 
-    // Deploy to Meilisearch if configured
-    if ((deploy.trigger === 'deploy = true' && process.env.DEPLOY === 'true') || deploy.trigger === 'everytime') {
+    // Deploy to Meilisearch if configured and triggered
+    if (deploy && ((deploy.trigger === 'deploy = true' && process.env.DEPLOY === 'true') || deploy.trigger === 'everytime')) {
         await deployToMeilisearch(documents, deploy)
     }
 }
@@ -122,17 +148,17 @@ async function deployToMeilisearch(
         const apiKey = key || process.env.MEILISEARCH_API_KEY;
 
         if (!apiKey) {
-            console.error('Meilisearch API key not provided and MEILISEARCH_API_KEY environment variable not set')
+            console.error(following(), 'API key not provided and MEILISEARCH_API_KEY environment variable not set')
             return
         }
 
         // Replace the key with the resolved API key
         if (!host || !index_uid) {
-            console.error('Missing required Meilisearch configuration')
+            console.error(following(), 'Missing required Meilisearch configuration')
             return
         }
 
-        console.log(`Deploying ${documents.length} documents to Meilisearch (${type} update)`)
+        console.log(following(), `Deploying to Meilisearch`)
 
         const client = new MeiliSearch({
             host,
@@ -142,24 +168,16 @@ async function deployToMeilisearch(
         const index = client.index(index_uid)
 
         if (type === 'full') {
-            // Full update: delete all documents first
-            console.log('Performing full update - deleting all existing documents...')
-            const deleteResponse = await index.deleteAllDocuments()
-            console.log('Delete response task ID:', deleteResponse.taskUid)
-
-            // Add all documents
-            const addResponse = await index.addDocuments(documents)
-            console.log('Add documents response task ID:', addResponse.taskUid)
+            await index.deleteAllDocuments()
+            await index.addDocuments(documents)
         } else {
-            // Incremental update: just add or update documents
-            console.log('Performing incremental update...')
-            const updateResponse = await index.updateDocuments(documents)
-            console.log('Update documents response task ID:', updateResponse.taskUid)
+            await index.updateDocuments(documents)
         }
 
-        console.log('Meilisearch deployment completed successfully')
+        console.log(following(), `Finished`)
     } catch (error) {
-        console.error('Failed to deploy to Meilisearch:', error)
+        console.log(following(), 'Failed to deploy to Meilisearch')
+        console.error(following(), error)
     }
 }
 
