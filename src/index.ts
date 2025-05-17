@@ -4,9 +4,8 @@ import type { AnyNode, Element } from 'domhandler'
 import { MeiliSearch } from 'meilisearch'
 import type { App, Page } from 'vuepress/core'
 import fs from 'fs/promises'
-import path from 'path'
 
-export type DeployTrigger = 'deploy = true' | 'everytime'
+export type DeployTrigger = 'meilideploy = true' | 'everytime'
 export type DeployType = 'full' | 'incremental'
 
 let isFirstLog = true;
@@ -25,11 +24,11 @@ function following() {
 export interface MeiliSearchDeployConfig {
     /**
      * Deploy trigger, determines when the deployment to Meilisearch should happen
-     * - 'deploy = true': Deploy only when the DEPLOY environment variable is set to 'true'
+     * - 'meilideploy = true': Deploy only when the MEILIDEPLOY environment variable is set to 'true'
      * - 'everytime': Deploy every time the index is generated
      *
      * 部署触发器，决定何时将索引部署到 Meilisearch
-     * - 'deploy = true': 仅当环境变量 DEPLOY 设置为 'true' 时触发部署
+     * - 'meilideploy = true': 仅当环境变量 MEILIDEPLOY 设置为 'true' 时触发部署
      * - 'everytime': 每次生成索引时都进行部署
      */
     trigger: DeployTrigger,
@@ -96,6 +95,8 @@ export interface MeiliSearchIndexerPluginOptions {
      * Return true to include the page in the index.
      * 
      * 页面过滤器函数。返回true表示页面需要被索引。
+     * 
+     * **Default 默认值**: `(page) => page.path !== '/404.html'
      */
     filter?: (page: Page) => boolean
 
@@ -150,7 +151,7 @@ export const generateMeiliSearchIndex = async (
     const {
         indexOutputFile,
         indexContent = true,
-        filter = (): boolean => true,
+        filter = (page): boolean => page.path !== '/404.html',
         baseUrl = '',
         deploy
     } = options
@@ -162,7 +163,7 @@ export const generateMeiliSearchIndex = async (
     }
 
     // Skip if deploy is configured but won't be triggered
-    if (!indexOutputFile && deploy && deploy.trigger === 'deploy = true' && process.env.DEPLOY !== 'true') {
+    if (!indexOutputFile && deploy && deploy.trigger === 'meilideploy = true' && process.env.MEILIDEPLOY !== 'true') {
         console.log(following(), '\u{1b}[90mskipped\u{1b}[0m')
         return
     }
@@ -178,9 +179,7 @@ export const generateMeiliSearchIndex = async (
 
     // Output index to file if specified
     if (indexOutputFile) {
-        const outputDir = path.dirname(indexOutputFile)
         try {
-            await fs.mkdir(outputDir, { recursive: true })
             await fs.writeFile(
                 indexOutputFile,
                 JSON.stringify(documents, null, 2),
@@ -194,7 +193,7 @@ export const generateMeiliSearchIndex = async (
     }
 
     // Deploy to Meilisearch if configured and triggered
-    if (deploy && ((deploy.trigger === 'deploy = true' && process.env.DEPLOY === 'true') || deploy.trigger === 'everytime')) {
+    if (deploy && ((deploy.trigger === 'meilideploy = true' && process.env.MEILIDEPLOY === 'true') || deploy.trigger === 'everytime')) {
         await deployToMeilisearch(documents, deploy)
     }
 }
